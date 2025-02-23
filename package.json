@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://yogendra004.github.io/swiftwork", 
+  "homepage": "https://yogendra004.github.io/workExc",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
