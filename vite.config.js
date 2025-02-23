@@ -5,5 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/swiftwork/',  
+  build: {
+    outDir: 'dist', // This ensures the build output goes to the dist folder
+  },
 })
 
