@@ -52,7 +52,8 @@ function speakText(text) {
   }
 }
 
-const audio = new Audio("public/whip-afro-dancehall-music-110235.mp3");
+const audio = new Audio("whip-afro-dancehall-music-110235.mp3");
+
 let isPaused = false;
 
 const playAudio = () => {
@@ -181,7 +182,7 @@ const WorkoutForm = () => {
               marginTop: 0,
             }}
           >
-            Let's Goooooo Rav 🏃🏽‍♀️
+            🤾🏽 Time To Train 🏋🏃🏽‍♀️
           </Typography>
         </Box>
         <Formik
