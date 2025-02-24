@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => ({
     height: "82vh",
     width: "100vw",
     paddingTop: "100px",
-    backgroundColor: "rgba(0, 0, 0, 0.14) !important",
+    backgroundColor: "black!important",
     color: "white",
   },
   inputFieldsWrapper: {
@@ -40,12 +40,41 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     marginTop: "20px",
   },
+  inputFields: {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: "orange",
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "white !important", 
+    },
+    "& .MuiInputLabel-root": {
+      color: "white",
+    },
+    "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: "white !important",
+    },
+    "& .MuiSelect-outlined": {
+      borderColor: "orange",
+    },
+
+    "& .MuiInputBase-root":{
+      backgroundColor:'black',
+      color:'white'
+    }
+  },
+  startButton:{
+    "&.MuiButton-contained.Mui-disabled":{
+      backgroundColor:'grey',
+    }
+  }
+  
 }));
 
 function speakText(text) {
   if ("speechSynthesis" in window) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
+    utterance.volume = 1.0; 
     window.speechSynthesis.speak(utterance);
   } else {
     alert("Speech synthesis not supported in this browser.");
@@ -53,6 +82,7 @@ function speakText(text) {
 }
 
 const audio = new Audio("whip-afro-dancehall-music-110235.mp3");
+audio.volume = 0.1
 
 let isPaused = false;
 
@@ -96,12 +126,11 @@ const WorkoutForm = () => {
     });
   const formikRef = useRef(null);
 
-  console.log(formikRef);
-
   const totalSeconds = hour * 60 * 60 + minutes * 60 + seconds;
   const cycleDuration = Number(setDuration) + Number(breakDuration);
   const elapsedInCycle = totalSeconds % cycleDuration;
   const [pausedTime, setPausedTime] = useState(0);
+  const [hasSpokenBreak, setHasSpokenBreak] = useState(false);
 
   const handleStartWatch = () => {
     playAudio();
@@ -137,27 +166,37 @@ const WorkoutForm = () => {
     setPausedTime(hour * 3600 + minutes * 60 + seconds);
   };
 
+
   useEffect(() => {
-    if (elapsedInCycle === 0 && totalSeconds !== 0) {
-      speakText(`Set ${Math.floor(totalSeconds / cycleDuration)} completed!`);
+    if (elapsedInCycle >= setDuration && !hasSpokenBreak) {
+      speakText(`time for ${breakDuration} seconds break`);
+      setHasSpokenBreak(true);
+    } else if (elapsedInCycle < setDuration) {
+      setHasSpokenBreak(false);
     }
+  
+    if (elapsedInCycle === 0 && totalSeconds !== 0 && !hasSpokenBreak) {
+      speakText(`Set ${Math.floor(totalSeconds / cycleDuration)} complete!`);
+      speakText("Break is over");
+      setHasSpokenBreak(false);
+    }
+  
 
-    if (cycleDuration * noOfSets * noOfRounds === totalSeconds)
+    if (totalSeconds === cycleDuration * noOfSets * noOfRounds) {
       speakText("Workout is complete");
-  }, [elapsedInCycle, totalSeconds, cycleDuration]);
-
-  useEffect(() => {
-    if (noOfRounds * noOfSets * cycleDuration === totalSeconds) {
+      
       if (formikRef.current) {
         resetWatch(formikRef.current);
       }
     }
-  }, [totalSeconds, noOfSets, cycleDuration]);
-
+  }, [elapsedInCycle, totalSeconds, cycleDuration, noOfRounds, noOfSets, setDuration, hasSpokenBreak]);
+  
+  
   useEffect(() => {
     return () => clearInterval(intervalId);
-  }, [intervalId]);
-
+  }, []);
+  
+  
   const resetWatch = (formik) => {
     stopAudio();
     setWatchRunning(false);
@@ -165,7 +204,7 @@ const WorkoutForm = () => {
     setSeconds(0);
     setMinutes(0);
     setHour(0);
-    formik?.resetForm(); // Reset form
+    formik?.resetForm(); 
     setStartButtonText("Start");
   };
 
@@ -178,11 +217,12 @@ const WorkoutForm = () => {
             sx={{
               fontSize: "50px",
               fontWeight: "bold",
-              marginBottom: 10,
-              marginTop: 0,
+              marginBottom: 5,
+              marginTop: -10,
+              color:'white'
             }}
           >
-            🤾🏽 Time To Train 🏋🏃🏽‍♀️
+            🤾🏽 Time To Train 🏃🏽‍♀️
           </Typography>
         </Box>
         <Formik
@@ -222,7 +262,9 @@ const WorkoutForm = () => {
                     helperText={
                       formik.touched.noOfRounds && formik.errors.noOfRounds
                     }
-                    sx={{ width: "180px" }}
+                    className={classes.inputFields}
+                    sx={{width:"180px"}}
+                    
                   >
                     {Array.from({ length: 5 }, (_, index) => {
                       return (
@@ -243,6 +285,7 @@ const WorkoutForm = () => {
                     helperText={
                       formik.touched.noOfSets && formik.errors.noOfSets
                     }
+                    className={classes.inputFields}
                     sx={{ width: "180px" }}
                   >
                     {Array.from({ length: 30 }, (_, index) => {
@@ -264,6 +307,7 @@ const WorkoutForm = () => {
                     helperText={
                       formik.touched.setDuration && formik.errors.setDuration
                     }
+                    className={classes.inputFields}
                   />
                   <TextField
                     id="breakDuration"
@@ -278,6 +322,7 @@ const WorkoutForm = () => {
                       formik.touched.breakDuration &&
                       formik.errors.breakDuration
                     }
+                    className={classes.inputFields}
                   />
                 </Box>
                 <Box className={classes.buttonsWrapper}>
@@ -290,6 +335,7 @@ const WorkoutForm = () => {
                       sx={{ borderRadius: "20px" }}
                       disabled={!formik.dirty}
                       onClick={handleStartWatch}
+                      className={classes.startButton}
                     >
                       {startButtonText}
                     </Button>
@@ -297,7 +343,7 @@ const WorkoutForm = () => {
                     <Button
                       type="submit"
                       variant="contained"
-                      color="secondary"
+                      color="warning"
                       size="large"
                       sx={{ borderRadius: "20px" }}
                       disabled={!formik.dirty}
@@ -327,12 +373,13 @@ const WorkoutForm = () => {
                         key={i + index}
                         sx={{
                           padding: 2,
-                          bgcolor: "#c7c7c7",
+                          bgcolor: "black",
+                          boxShadow: "0px 1px 11px 0px rgb(239 114 27 / 49%)",
                           color:
                             elapsedInCycle <= setDuration ? "green" : "red",
                         }}
                       >
-                        {i < 10 ? `0${i}` : i}
+                        <Typography variant="h1" sx={{fontWeight: 'bold', fontSize: '10rem' }} >{i < 10 ? `0${i}` : i}</Typography>
                       </Card>
                     ))}
                   </Typography>
