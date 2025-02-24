@@ -34,11 +34,12 @@ const useStyles = makeStyles(() => ({
     gap: 5,
     pt: "20px !important",
     justifyContent: "center",
+    marginTop:'80px !important'
   },
   typographyWrapper: {
     display: "flex",
     justifyContent: "center",
-    marginTop: "20px",
+    marginTop: "80px",
   },
   inputFields: {
     "& .MuiOutlinedInput-notchedOutline": {
@@ -325,6 +326,27 @@ const WorkoutForm = () => {
                     className={classes.inputFields}
                   />
                 </Box>
+                <Box className={classes.typographyWrapper}>
+                  <Typography
+                    variant="h1"
+                    sx={{ display: "flex", fontWeight: "bold", gap: 1 }}
+                  >
+                    {[hour, minutes, seconds].map((i, index) => (
+                      <Card
+                        key={i + index}
+                        sx={{
+                          padding: 2,
+                          bgcolor: "black",
+                          boxShadow: "0px 1px 11px 0px rgb(239 114 27 / 49%)",
+                          color:
+                            elapsedInCycle <= setDuration ? "green" : "red",
+                        }}
+                      >
+                        <Typography variant="h1" sx={{fontWeight: 'bold', fontSize: '10rem' }} >{i < 10 ? `0${i}` : i}</Typography>
+                      </Card>
+                    ))}
+                  </Typography>
+                </Box>
                 <Box className={classes.buttonsWrapper}>
                   {!isWatchRunning ? (
                     <Button
@@ -362,27 +384,6 @@ const WorkoutForm = () => {
                   >
                     Reset
                   </Button>
-                </Box>
-                <Box className={classes.typographyWrapper}>
-                  <Typography
-                    variant="h1"
-                    sx={{ display: "flex", fontWeight: "bold", gap: 1 }}
-                  >
-                    {[hour, minutes, seconds].map((i, index) => (
-                      <Card
-                        key={i + index}
-                        sx={{
-                          padding: 2,
-                          bgcolor: "black",
-                          boxShadow: "0px 1px 11px 0px rgb(239 114 27 / 49%)",
-                          color:
-                            elapsedInCycle <= setDuration ? "green" : "red",
-                        }}
-                      >
-                        <Typography variant="h1" sx={{fontWeight: 'bold', fontSize: '10rem' }} >{i < 10 ? `0${i}` : i}</Typography>
-                      </Card>
-                    ))}
-                  </Typography>
                 </Box>
               </Form>
             );
